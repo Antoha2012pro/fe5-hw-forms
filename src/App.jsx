@@ -22,6 +22,8 @@ const initialContacts = [
   },
 ];
 
+const CONTACTS_STORAGE_KEY = "phonebook_contacts";
+
 export default class App extends Component {
   constructor(props) {
     super(props);
@@ -31,9 +33,29 @@ export default class App extends Component {
     };
   }
 
+  componentDidMount() {
+    const savedContacts = localStorage.getItem(CONTACTS_STORAGE_KEY);
+
+    if (savedContacts) {
+      this.setState({
+        contacts: JSON.parse(savedContacts),
+      });
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.contacts !== this.state.contacts) {
+      localStorage.setItem(
+        CONTACTS_STORAGE_KEY,
+        JSON.stringify(this.state.contacts),
+      );
+    }
+  }
+
   handleContact = (name, number) => {
     const isDuplicate = this.state.contacts.some(
-      (contact) => contact.name.toLowerCase().trim() === name.toLowerCase().trim(),
+      (contact) =>
+        contact.name.toLowerCase().trim() === name.toLowerCase().trim(),
     );
 
     if (isDuplicate) {
@@ -50,7 +72,7 @@ export default class App extends Component {
     this.setState((prevState) => ({
       contacts: [...prevState.contacts, newContact],
     }));
-    
+
     return true;
   };
 
